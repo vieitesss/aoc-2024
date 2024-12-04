@@ -21,42 +21,23 @@ impl Day3 {
     }
 
     fn remove_disabled(data: &str) -> String {
-        let donts: Vec<usize> = data.match_indices("don't()").map(|(i, _)| i).collect();
-        let dos: Vec<usize> = data.match_indices("do()").map(|(i, _)| i).collect();
-
-        let donts_len = donts.len();
-        let dos_len = dos.len();
-
+        let mut result = String::new();
         let mut enabled = true;
-        let mut from = 0;
-        let mut current_do = 0;
-        let mut current_dont = 0;
+        let mut index = 0;
 
-        let mut result = String::from("");
-
-        for i in (0..data.len()).into_iter() {
-            if dos[current_do] == i {
-                if !enabled {
-                    from = i;
-                    enabled = true;
-                }
-                current_do += 1;
-            } else if donts[current_dont] == i {
+        while index < data.len() {
+            if data[index..].starts_with("don't()") {
+                enabled = false;
+                index += 7;
+            } else if data[index..].starts_with("do()") {
+                enabled = true;
+                index += 4;
+            } else {
                 if enabled {
-                    result += &data[from..i];
-                    enabled = false;
+                    let ch = data[index..].chars().next().unwrap();
+                    result.push(ch);
                 }
-                current_dont += 1;
-            }
-
-            if current_do == dos_len {
-                result += &data[from..donts[current_dont]];
-                break;
-            }
-
-            if current_dont == donts_len {
-                result += &data[dos[current_do]..];
-                break;
+                index += 1;
             }
         }
 

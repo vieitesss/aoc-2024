@@ -34,7 +34,7 @@ impl Dir {
         }
     }
 
-    pub fn from(&self, pos: (usize, usize)) -> (isize, isize) {
+    pub fn from(&self, pos: (isize, isize)) -> (isize, isize) {
         let vals = self.values();
         (pos.0 as isize + vals.0, pos.1 as isize + vals.1)
     }

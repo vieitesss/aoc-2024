@@ -16,7 +16,7 @@ impl Day4 {
         Day4 { matrix }
     }
 
-    fn find_next(&self, pos: (usize, usize), dir: &Dir, find: char) -> bool {
+    fn find_next(&self, pos: (isize, isize), dir: &Dir, find: char) -> bool {
         let checking = dir.from(pos);
 
         if let Some(c) = self.matrix.get_pos(checking) {
@@ -25,8 +25,8 @@ impl Day4 {
             }
 
             match find {
-                'M' => return self.find_next((checking.0 as usize, checking.1 as usize), dir, 'A'),
-                'A' => return self.find_next((checking.0 as usize, checking.1 as usize), dir, 'S'),
+                'M' => return self.find_next(checking, dir, 'A'),
+                'A' => return self.find_next(checking, dir, 'S'),
                 'S' => return true,
                 _ => panic!("Should not check for {find}"),
             };
@@ -35,8 +35,8 @@ impl Day4 {
         false
     }
 
-    fn is_xmas(&self, pos: (usize, usize), dir: &Dir) -> bool {
-        if self.matrix.get_pos((pos.0 as isize, pos.1 as isize)) != Some('X').as_ref() {
+    fn is_xmas(&self, pos: (isize, isize), dir: &Dir) -> bool {
+        if self.matrix.get_pos(pos) != Some('X').as_ref() {
             return false;
         }
 
@@ -46,7 +46,8 @@ impl Day4 {
     fn count_xmas(&self) -> usize {
         let xs = self.matrix.find_element(&'X');
         xs.iter().fold(0, |acc, &pos| {
-            acc + DIRS.iter().filter(|dir| self.is_xmas(pos, dir)).count()
+            let current = (pos.0 as isize, pos.1 as isize);
+            acc + DIRS.iter().filter(|dir| self.is_xmas(current, dir)).count()
         })
     }
 
@@ -54,8 +55,9 @@ impl Day4 {
         let ass = self.matrix.find_element(&'A');
         ass.iter()
             .filter(|&&pos| {
-                let topleft = self.matrix.get_pos(Dir::TopLeft.from(pos));
-                let bottomright = self.matrix.get_pos(Dir::BottomRight.from(pos));
+                let current = (pos.0 as isize, pos.1 as isize);
+                let topleft = self.matrix.get_pos(Dir::TopLeft.from(current));
+                let bottomright = self.matrix.get_pos(Dir::BottomRight.from(current));
 
                 if !matches!(
                     (topleft, bottomright),
@@ -64,8 +66,8 @@ impl Day4 {
                     return false;
                 }
 
-                let topright = self.matrix.get_pos(Dir::TopRight.from(pos));
-                let bottomleft = self.matrix.get_pos(Dir::BottomLeft.from(pos));
+                let topright = self.matrix.get_pos(Dir::TopRight.from(current));
+                let bottomleft = self.matrix.get_pos(Dir::BottomLeft.from(current));
 
                 matches!(
                     (topright, bottomleft),

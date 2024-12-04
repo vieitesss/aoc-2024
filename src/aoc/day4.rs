@@ -18,11 +18,12 @@ impl Day4 {
 
     fn find_next(&self, pos: (usize, usize), dir: &Dir, find: char) -> bool {
         let checking = dir.from(pos);
-        if self.matrix.is_outbounds(checking) {
-            return false;
-        }
 
-        if self.matrix[checking.0 as usize][checking.1 as usize] == find {
+        if let Some(c) = self.matrix.get_pos(checking) {
+            if *c != find {
+                return false;
+            }
+
             match find {
                 'M' => return self.find_next((checking.0 as usize, checking.1 as usize), dir, 'A'),
                 'A' => return self.find_next((checking.0 as usize, checking.1 as usize), dir, 'S'),

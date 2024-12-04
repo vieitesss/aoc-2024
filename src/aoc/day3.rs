@@ -26,15 +26,16 @@ impl Day3 {
         let mut index = 0;
 
         while index < data.len() {
-            if data[index..].starts_with("don't()") {
+            let remaining = &data[index..];
+            if remaining.starts_with("don't()") {
                 enabled = false;
                 index += 7;
-            } else if data[index..].starts_with("do()") {
+            } else if remaining.starts_with("do()") {
                 enabled = true;
                 index += 4;
             } else {
                 if enabled {
-                    let ch = data[index..].chars().next().unwrap();
+                    let ch = remaining.chars().next().unwrap();
                     result.push(ch);
                 }
                 index += 1;

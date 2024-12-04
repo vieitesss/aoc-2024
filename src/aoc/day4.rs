@@ -35,6 +35,10 @@ impl Day4 {
     }
 
     fn is_xmas(&self, pos: (usize, usize), dir: &Dir) -> bool {
+        if self.matrix.get_pos((pos.0 as isize, pos.1 as isize)) != Some('X').as_ref() {
+            return false;
+        }
+
         self.find_next(pos, dir, 'M')
     }
 

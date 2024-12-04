@@ -1,4 +1,5 @@
 mod aoc;
+mod utils;
 
 use crate::aoc::Solution;
 use aoc::day1::Day1;

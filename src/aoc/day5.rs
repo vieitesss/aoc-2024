@@ -47,11 +47,7 @@ impl Day5 {
     }
 
     fn is_valid_update(&self, update: &[usize]) -> bool {
-        let update_len = update.len();
-        for (i, n) in update.iter().enumerate() {
-            if i == update_len - 1 {
-                break;
-            }
+        for (i, n) in update[..update.len() - 1].iter().enumerate() {
             if let Some(v) = self.rules.0.get(&n) {
                 for sucesor in update[i + 1..].iter() {
                     if !v.contains(sucesor) {
@@ -59,7 +55,7 @@ impl Day5 {
                     }
                 }
             } else {
-                return i == update_len - 1;
+                return false;
             }
         }
 
@@ -70,7 +66,7 @@ impl Day5 {
         assert!(!update.is_empty());
         let mut ordered = vec![update[0]];
 
-        for n in update.iter().skip(1) {
+        for n in update[1..].iter() {
             let mut inserted = false;
             for i in 0..ordered.len() {
                 let o = ordered[i];

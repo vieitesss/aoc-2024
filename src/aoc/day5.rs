@@ -65,6 +65,34 @@ impl Day5 {
 
         true
     }
+
+    fn ordered(&self, update: &[usize]) -> Vec<usize> {
+        assert!(!update.is_empty());
+        let mut ordered = vec![update[0]];
+
+        for n in update.iter().skip(1) {
+            let mut inserted = false;
+            for i in 0..ordered.len() {
+                let o = ordered[i];
+                if let Some(v) = self.rules.0.get(&o) {
+                    if !v.contains(n) {
+                        ordered.insert(i, *n);
+                        inserted = true;
+                        break;
+                    }
+                } else {
+                    ordered.insert(i, *n);
+                    inserted = true;
+                    break;
+                }
+            }
+            if !inserted {
+                ordered.push(*n);
+            }
+        }
+
+        ordered
+    }
 }
 
 impl Solution for Day5 {
@@ -81,7 +109,12 @@ impl Solution for Day5 {
     }
 
     fn part2(&mut self) -> u64 {
-        0
+        self.updates
+            .iter()
+            .filter(|u| !self.is_valid_update(&u))
+            .map(|u| self.ordered(&u))
+            .map(|u| u[u.len() / 2])
+            .sum::<usize>() as u64
     }
 }
 
@@ -135,5 +168,29 @@ mod test {
             .sum();
 
         assert_eq!(sum, 143);
+    }
+
+    #[test]
+    fn day5_part2_ordered() {
+        let mut day = Day5::default();
+        day.parse(&fs::read_to_string("./example/day5").unwrap());
+        assert_eq!(day.ordered(&day.updates[3]), vec![97, 75, 47, 61, 53]);
+        assert_eq!(day.ordered(&day.updates[4]), vec![61, 29, 13]);
+        assert_eq!(day.ordered(&day.updates[5]), vec![97, 75, 47, 29, 13]);
+    }
+
+    #[test]
+    fn day5_part2_example() {
+        let mut day = Day5::default();
+        day.parse(&fs::read_to_string("./example/day5").unwrap());
+        let sum: usize = day
+            .updates
+            .iter()
+            .filter(|u| !day.is_valid_update(&u))
+            .map(|u| day.ordered(&u))
+            .map(|u| u[u.len() / 2])
+            .sum();
+
+        assert_eq!(sum, 123);
     }
 }

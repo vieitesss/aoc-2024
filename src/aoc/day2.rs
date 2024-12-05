@@ -1,4 +1,4 @@
-use crate::utils::{matrix::Matrix, parser};
+use crate::utils::matrix::Matrix;
 
 use super::Solution;
 use std::{fs, path::Path};

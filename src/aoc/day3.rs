@@ -59,7 +59,7 @@ impl Solution for Day3 {
     }
 
     fn part2(&mut self) -> u64 {
-        self.remove_disabled();
+        self.data = self.remove_disabled();
         self.sum_muls()
     }
 }

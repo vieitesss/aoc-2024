@@ -1,25 +1,139 @@
 use super::Solution;
-use std::fs;
+use std::{collections::HashMap, fs};
 
 #[derive(Default)]
-pub struct Day5 {}
+struct Rules(HashMap<usize, Vec<usize>>);
+
+impl Rules {
+    fn insert(&mut self, rule: &str) {
+        let numbers: Vec<usize> = rule
+            .split("|")
+            .map(|n| n.parse().expect("A valid number"))
+            .collect();
+        let key = numbers[0];
+        if let Some(sucesors) = self.0.get_mut(&key) {
+            sucesors.push(numbers[1]);
+        } else {
+            self.0.insert(key, vec![numbers[1]]);
+        }
+    }
+}
+
+#[derive(Default)]
+pub struct Day5 {
+    rules: Rules,
+    updates: Vec<Vec<usize>>,
+}
 
 impl Day5 {
-    fn new() -> Day5 {
-        Day5 {}
+    fn parse(&mut self, data: &str) {
+        let mut rules = Rules::default();
+        let mut updates = Vec::new();
+
+        for line in data.lines() {
+            if line.contains("|") {
+                rules.insert(line);
+            } else if line.contains(",") {
+                updates.push(
+                    line.split(",")
+                        .map(|n| n.parse().expect("A valid number"))
+                        .collect(),
+                );
+            }
+        }
+
+        self.rules = rules;
+        self.updates = updates;
+    }
+
+    fn is_valid_update(&self, update: &[usize]) -> bool {
+        let update_len = update.len();
+        for (i, n) in update.iter().enumerate() {
+            if i == update_len - 1 {
+                break;
+            }
+            if let Some(v) = self.rules.0.get(&n) {
+                for sucesor in update[i + 1..].iter() {
+                    if !v.contains(sucesor) {
+                        return false;
+                    }
+                }
+            } else {
+                return i == update_len - 1;
+            }
+        }
+
+        true
     }
 }
 
 impl Solution for Day5 {
     fn parse_input(&mut self) {
-        let _data = fs::read_to_string("./input/day5");
+        self.parse(&fs::read_to_string("./input/day5").unwrap());
     }
 
     fn part1(&mut self) -> u64 {
-        0
+        self.updates
+            .iter()
+            .filter(|u| self.is_valid_update(&u))
+            .map(|u| u[u.len() / 2])
+            .sum::<usize>() as u64
     }
 
     fn part2(&mut self) -> u64 {
         0
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn day5_part1_data() {
+        let mut day = Day5::default();
+        day.parse(
+            "
+47|53
+97|13
+97|61
+
+75,97,47,61,53
+61,13,29
+97,13,75,29,47
+",
+        );
+        assert_eq!(day.rules.0.len(), 2); // Dos números diferentes en el lado izquierdo
+        assert_eq!(day.updates.len(), 3);
+        assert_eq!(day.rules.0.get(&97), Some(vec![13, 61]).as_ref());
+        assert_eq!(day.rules.0.get(&47), Some(vec![53]).as_ref());
+        assert_eq!(day.rules.0.get(&53), None);
+        assert_eq!(day.updates[1], vec![61, 13, 29]);
+    }
+
+    #[test]
+    fn day5_part1_valid_update() {
+        let mut day = Day5::default();
+        day.parse(&fs::read_to_string("./example/day5").unwrap());
+        let r: Vec<bool> = day
+            .updates
+            .iter()
+            .map(|u| day.is_valid_update(&u))
+            .collect();
+        assert_eq!(r, vec![true, true, true, false, false, false]);
+    }
+
+    #[test]
+    fn day5_part1_example() {
+        let mut day = Day5::default();
+        day.parse(&fs::read_to_string("./example/day5").unwrap());
+        let sum: usize = day
+            .updates
+            .iter()
+            .filter(|u| day.is_valid_update(&u))
+            .map(|u| u[u.len() / 2])
+            .sum();
+
+        assert_eq!(sum, 143);
     }
 }

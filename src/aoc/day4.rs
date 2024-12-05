@@ -13,10 +13,6 @@ pub struct Day4 {
 }
 
 impl Day4 {
-    fn new(matrix: Matrix<char>) -> Day4 {
-        Day4 { matrix }
-    }
-
     fn find_next(&self, pos: (isize, isize), dir: &Dir, find: char) -> bool {
         let checking = dir.from(pos);
 
@@ -97,6 +93,12 @@ impl Solution for Day4 {
 #[cfg(test)]
 mod test {
     use super::*;
+
+    impl Day4 {
+        fn new(matrix: Matrix<char>) -> Day4 {
+            Day4 { matrix }
+        }
+    }
 
     #[test]
     fn day4_part1_is_xmas() {

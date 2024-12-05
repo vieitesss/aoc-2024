@@ -1,12 +1,13 @@
 use crate::utils::{
     dir::*,
-    matrix::{Matrix, MatrixTrait, Row},
+    matrix::{Matrix, MatrixTrait},
     parser,
 };
 
 use super::Solution;
-use std::{fs, io, path::Path};
+use std::fs;
 
+#[derive(Default)]
 pub struct Day4 {
     matrix: Matrix<char>,
 }
@@ -79,27 +80,17 @@ impl Day4 {
 }
 
 impl Solution for Day4 {
-    type Item = Row<char>;
-
-    fn parse_input<P>(path: P) -> io::Result<impl Iterator<Item = Self::Item>>
-    where
-        P: AsRef<Path>,
-    {
-        let data = fs::read_to_string(path).unwrap();
-
-        Ok(parser::to_chars_matrix(&data).into_iter())
+    fn parse_input(&mut self) {
+        let data = fs::read_to_string("./input/day4").unwrap();
+        self.matrix = parser::to_chars_matrix(&data);
     }
 
-    fn part1() -> u64 {
-        let data = Day4::parse_input("./input/day4").unwrap().collect();
-        let day = Day4::new(data);
-        day.count_xmas() as u64
+    fn part1(&mut self) -> u64 {
+        self.count_xmas() as u64
     }
 
-    fn part2() -> u64 {
-        let data = Day4::parse_input("./input/day4").unwrap().collect();
-        let day = Day4::new(data);
-        day.count_x_mas() as u64
+    fn part2(&mut self) -> u64 {
+        self.count_x_mas() as u64
     }
 }
 
@@ -109,31 +100,31 @@ mod test {
 
     #[test]
     fn day4_part1_is_xmas() {
-        let data = Day4::parse_input("./example/day4").unwrap().collect();
-        let day = Day4::new(data);
+        let data = fs::read_to_string("./example/day4").unwrap();
+        let day = Day4::new(parser::to_chars_matrix(&data));
         assert!(day.is_xmas((0, 5), &Dir::Right));
         assert!(day.is_xmas((0, 4), &Dir::BottomRight));
     }
 
     #[test]
     fn day4_part1_is_not_xmas() {
-        let data = Day4::parse_input("./example/day4").unwrap().collect();
-        let day = Day4::new(data);
+        let data = fs::read_to_string("./example/day4").unwrap();
+        let day = Day4::new(parser::to_chars_matrix(&data));
         assert!(!day.is_xmas((2, 2), &Dir::Left));
         assert!(!day.is_xmas((7, 2), &Dir::BottomRight));
     }
 
     #[test]
     fn day4_part1_example_count() {
-        let data = Day4::parse_input("./example/day4").unwrap().collect();
-        let day = Day4::new(data);
+        let data = fs::read_to_string("./example/day4").unwrap();
+        let day = Day4::new(parser::to_chars_matrix(&data));
         assert_eq!(day.count_xmas(), 18);
     }
 
     #[test]
     fn day4_part2_example_count() {
-        let data = Day4::parse_input("./example/day4").unwrap().collect();
-        let day = Day4::new(data);
+        let data = fs::read_to_string("./example/day4").unwrap();
+        let day = Day4::new(parser::to_chars_matrix(&data));
         assert_eq!(day.count_x_mas(), 9);
     }
 }

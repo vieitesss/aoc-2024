@@ -1,32 +1,34 @@
 use super::Solution;
 use regex::Regex;
-use std::{fs, io, path::Path};
+use std::fs;
 
 #[derive(Default)]
-pub struct Day3 {}
+pub struct Day3 {
+    data: String,
+}
 
 impl Day3 {
-    fn sum_muls(data: &str) -> i32 {
+    fn sum_muls(&self) -> u64 {
         let regex = Regex::new(r"mul\((\d{1,3}),(\d{1,3})\)").unwrap();
 
         regex
-            .captures_iter(&data)
+            .captures_iter(&self.data)
             .map(|c| {
-                let x = c.get(1).unwrap().as_str().parse::<i32>().unwrap();
-                let y = c.get(2).unwrap().as_str().parse::<i32>().unwrap();
+                let x = c.get(1).unwrap().as_str().parse::<u64>().unwrap();
+                let y = c.get(2).unwrap().as_str().parse::<u64>().unwrap();
 
                 x * y
             })
             .sum()
     }
 
-    fn remove_disabled(data: &str) -> String {
+    fn remove_disabled(&self) -> String {
         let mut result = String::new();
         let mut enabled = true;
         let mut index = 0;
 
-        while index < data.len() {
-            let remaining = &data[index..];
+        while index < self.data.len() {
+            let remaining = &self.data[index..];
             if remaining.starts_with("don't()") {
                 enabled = false;
                 index += 7;
@@ -47,25 +49,18 @@ impl Day3 {
 }
 
 impl Solution for Day3 {
-    type Item = String;
-
-    fn parse_input<P>(path: P) -> io::Result<impl Iterator<Item = Self::Item>>
-    where
-        P: AsRef<Path>,
-    {
-        let data = fs::read_to_string(path);
-        Ok(data.into_iter())
+    fn parse_input(&mut self) {
+        let data = fs::read_to_string("./input/day3").unwrap();
+        self.data = data;
     }
 
-    fn part1() -> u64 {
-        let data: String = Day3::parse_input("./input/day3").unwrap().collect();
-        Day3::sum_muls(&data) as u64
+    fn part1(&mut self) -> u64 {
+        self.sum_muls()
     }
 
-    fn part2() -> u64 {
-        let data: String = Day3::parse_input("./input/day3").unwrap().collect();
-        let parsed = Day3::remove_disabled(&data);
-        Day3::sum_muls(&parsed) as u64
+    fn part2(&mut self) -> u64 {
+        self.remove_disabled();
+        self.sum_muls()
     }
 }
 
@@ -75,7 +70,7 @@ mod test {
 
     #[test]
     fn day3_part1_count() {
-        let data: String = Day3::parse_input("./example/day3").unwrap().collect();
+        let data: String = fs::read_to_string("./example/day3").unwrap();
         let regex = Regex::new(r"mul\(\d{1,3},\d{1,3}\)").unwrap();
 
         assert_eq!(regex.find_iter(&data).count(), 4);
@@ -83,33 +78,36 @@ mod test {
 
     #[test]
     fn day3_part1_example() {
-        let data: String = Day3::parse_input("./example/day3").unwrap().collect();
-        assert_eq!(Day3::sum_muls(&data), 161);
+        let data: String = fs::read_to_string("./example/day3").unwrap();
+        let mut day = Day3::default();
+        day.data = data;
+        assert_eq!(day.sum_muls(), 161);
     }
 
     #[test]
     fn day3_part2_count() {
-        let data: String = Day3::parse_input("./example/day3").unwrap().collect();
+        let data: String = fs::read_to_string("./example/day3").unwrap();
         assert_eq!(data.match_indices("do()").count(), 1);
         assert_eq!(data.match_indices("don't()").count(), 1);
     }
 
     #[test]
     fn day3_part2_remove() {
-        let data: String = Day3::parse_input("./example/day3").unwrap().collect();
+        let data: String = fs::read_to_string("./example/day3").unwrap();
+        let mut day = Day3::default();
+        day.data = data;
         assert_eq!(
-            Day3::remove_disabled(&data),
-            String::from("xmul(2,4)&mul[3,7]!^do()?mul(8,5))\n")
+            day.remove_disabled(),
+            String::from("xmul(2,4)&mul[3,7]!^?mul(8,5))\n")
         );
     }
 
     #[test]
     fn day3_part2_remove2() {
         let data = String::from("xdo()mul(2,4)&muldo()[3,7]!^don't()_mul(5,5)+mul(32,64](mul(11,8)undo()?don't()mul(8,5))");
-        assert_eq!(
-            Day3::remove_disabled(&data),
-            String::from("xdo()mul(2,4)&muldo()[3,7]!^do()?")
-        );
+        let mut day = Day3::default();
+        day.data = data;
+        assert_eq!(day.remove_disabled(), String::from("xmul(2,4)&mul[3,7]!^?"));
     }
 
     #[test]
@@ -117,8 +115,9 @@ mod test {
         let data = String::from(
             "xmul(2,4)&mul[3,7]!^don't()_mul(5,5)+mul(32,64](mul(11,8)undo()?mul(8,5))",
         );
-        let parsed = Day3::remove_disabled(&data);
-
-        assert_eq!(Day3::sum_muls(&parsed), 48);
+        let mut day = Day3::default();
+        day.data = data;
+        day.data = day.remove_disabled();
+        assert_eq!(day.sum_muls(), 48);
     }
 }

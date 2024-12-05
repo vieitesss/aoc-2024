@@ -1,11 +1,11 @@
 mod aoc;
 mod utils;
 
-use crate::aoc::Solution;
-use aoc::day1::Day1;
 use aoc::day2::Day2;
 use aoc::day3::Day3;
 use aoc::day4::Day4;
+use aoc::day5::Day5;
+use aoc::{day1::Day1, Solution};
 use std::{env, io, process::exit};
 
 fn usage_exit(day: &str) {
@@ -21,19 +21,28 @@ fn main() -> Result<(), io::Error> {
         usage_exit(&args[0]);
     }
 
-    let day = &args[1].parse::<u8>().unwrap();
+    let day: usize = args[1].parse().unwrap();
 
-    if *day < 1 || *day > 25 {
+    if day < 1 || day > 25 {
         usage_exit(&args[0]);
     }
 
-    match day {
-        1 => eprintln!("part 1: {}\npart 2: {}", Day1::part1(), Day1::part2()),
-        2 => eprintln!("part 1: {}\npart 2: {}", Day2::part1(), Day2::part2()),
-        3 => eprintln!("part 1: {}\npart 2: {}", Day3::part1(), Day3::part2()),
-        4 => eprintln!("part 1: {}\npart 2: {}", Day4::part1(), Day4::part2()),
-        _ => eprintln!("Day {} not done yet", day),
-    }
+    let mut day1 = Day1::default();
+    let mut day2 = Day2::default();
+    let mut day3 = Day3::default();
+    let mut day4 = Day4::default();
+    let mut day5 = Day5::default();
+
+    let mut days: Vec<&mut dyn Solution> = vec![
+        &mut day1,
+        &mut day2,
+        &mut day3,
+        &mut day4,
+        &mut day5,
+    ];
+
+    let d = &mut days[day - 1];
+    aoc::run_day(*d);
 
     Ok(())
 }

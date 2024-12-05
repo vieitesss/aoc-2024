@@ -1,5 +1,5 @@
 use super::Solution;
-use std::{collections::HashMap, fs, io, path::Path};
+use std::{collections::HashMap, fs, path::Path};
 
 type Column = Vec<i64>;
 type Matrix = Vec<Column>;
@@ -11,7 +11,7 @@ pub struct Day1 {
 }
 
 impl Day1 {
-    fn get_columns(&mut self, pairs: impl Iterator<Item = <Day1 as Solution>::Item>) {
+    fn get_columns(&mut self, pairs: Vec<(i64, i64)>) {
         let mut columns: Matrix = vec![vec![]; 2];
 
         for (n1, n2) in pairs {
@@ -55,18 +55,10 @@ impl Day1 {
             }
         })
     }
-}
 
-impl Solution for Day1 {
-    type Item = (i64, i64);
-
-    fn parse_input<P>(path: P) -> io::Result<impl Iterator<Item = Self::Item>>
-    where
-        P: AsRef<Path>,
-    {
-        let data = fs::read_to_string(path)?;
-
-        let pairs: Vec<Self::Item> = data
+    fn parse<P: AsRef<Path>>(&mut self, path: P) {
+        let data = fs::read_to_string(path).unwrap();
+        let pairs: Vec<(i64, i64)> = data
             .lines()
             .map(|line| {
                 let mut nums = line
@@ -80,23 +72,21 @@ impl Solution for Day1 {
             })
             .collect();
 
-        Ok(pairs.into_iter())
+        self.get_columns(pairs);
+    }
+}
+
+impl Solution for Day1 {
+    fn parse_input(&mut self) {
+        self.parse("./input/day1");
     }
 
-    fn part1() -> u64 {
-        let numbers = Day1::parse_input("./input/day1").unwrap();
-
-        let mut day = Day1::default();
-        day.get_columns(numbers);
-        day.get_distance() as u64
+    fn part1(&mut self) -> u64 {
+        self.get_distance() as u64
     }
 
-    fn part2() -> u64 {
-        let numbers = Day1::parse_input("./input/day1").unwrap();
-
-        let mut day = Day1::default();
-        day.get_columns(numbers);
-        day.get_similarity()
+    fn part2(&mut self) -> u64 {
+        self.get_similarity()
     }
 }
 
@@ -106,17 +96,15 @@ mod test {
 
     #[test]
     fn test_day1_part1() {
-        let numbers = Day1::parse_input("./example/day1").unwrap();
         let mut day = Day1::default();
-        day.get_columns(numbers);
+        day.parse("./example/day1");
         assert_eq!(day.get_distance(), 11);
     }
 
     #[test]
     fn test_day1_part2_count() {
-        let numbers = Day1::parse_input("./example/day1").unwrap();
         let mut day = Day1::default();
-        day.get_columns(numbers);
+        day.parse("./example/day1");
 
         let matrix1 = Day1::count_numbers(&day.columns[0]);
         match matrix1.get(&3) {
@@ -133,9 +121,8 @@ mod test {
 
     #[test]
     fn test_day1_part2() {
-        let numbers = Day1::parse_input("./example/day1").unwrap();
         let mut day = Day1::default();
-        day.get_columns(numbers);
+        day.parse("./example/day1");
         assert_eq!(day.get_similarity(), 31);
     }
 }

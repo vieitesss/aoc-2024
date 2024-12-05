@@ -1,11 +1,14 @@
-#![allow(dead_code)]
+use crate::utils::{matrix::Matrix, parser};
+
 use super::Solution;
-use std::{fs, io, path::Path};
+use std::{fs, path::Path};
 
 type Report = Vec<i64>;
 
 #[derive(Default)]
-pub struct Day2 {}
+pub struct Day2 {
+    reports: Matrix<i64>,
+}
 
 #[derive(PartialEq, Debug)]
 enum DIR {
@@ -110,37 +113,38 @@ impl Day2 {
 
         false
     }
-}
 
-impl Solution for Day2 {
-    type Item = Report;
-
-    fn parse_input<P>(path: P) -> io::Result<impl Iterator<Item = Self::Item>>
-    where
-        P: AsRef<Path>,
-    {
-        let data = fs::read_to_string(path)?;
-
-        let reports: Vec<Report> = data
+    fn parse<P: AsRef<Path>>(&mut self, path: P) -> Vec<Report> {
+        let data = fs::read_to_string(path).unwrap();
+        data
             .lines()
             .map(|line| {
                 line.split_whitespace()
                     .filter_map(|s| s.parse::<i64>().ok())
                     .collect()
             })
-            .collect();
+            .collect()
+    }
+}
 
-        Ok(reports.into_iter())
+impl Solution for Day2 {
+    fn parse_input(&mut self) {
+        let reports = self.parse("./example/day2");
+        self.reports = reports;
     }
 
-    fn part1() -> u64 {
-        let reports: Vec<Report> = Day2::parse_input("./input/day2").unwrap().collect();
-        reports.iter().filter(|&r| Day2::is_safe_part1(r)).count() as u64
+    fn part1(&mut self) -> u64 {
+        self.reports
+            .iter()
+            .filter(|&r| Day2::is_safe_part1(r))
+            .count() as u64
     }
 
-    fn part2() -> u64 {
-        let reports: Vec<Report> = Day2::parse_input("./input/day2").unwrap().collect();
-        reports.iter().filter(|&r| Day2::is_safe_part2(r)).count() as u64
+    fn part2(&mut self) -> u64 {
+        self.reports
+            .iter()
+            .filter(|&r| Day2::is_safe_part2(r))
+            .count() as u64
     }
 }
 
@@ -162,8 +166,10 @@ mod test {
 
     #[test]
     fn test_day2_part1_example() {
-        let reports: Vec<Report> = Day2::parse_input("./example/day2").unwrap().collect();
-        let count: usize = reports
+        let mut day = Day2::default();
+        day.parse_input();
+        let count: usize = day
+            .reports
             .iter()
             .map(|r| Day2::is_safe_part1(r))
             .filter(|&v| v)
@@ -185,8 +191,13 @@ mod test {
 
     #[test]
     fn test_day2_part2_example() {
-        let reports: Vec<Report> = Day2::parse_input("./example/day2").unwrap().collect();
-        let count = reports.iter().filter(|&r| Day2::is_safe_part2(r)).count() as u64;
+        let mut day = Day2::default();
+        day.parse_input();
+        let count = day
+            .reports
+            .iter()
+            .filter(|&r| Day2::is_safe_part2(r))
+            .count() as u64;
         assert_eq!(count, 4);
     }
 }

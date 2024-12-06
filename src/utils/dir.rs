@@ -1,6 +1,8 @@
+#[derive(Default, Debug, PartialEq, Eq)]
 pub enum Dir {
     TopLeft,
     Top,
+    #[default]
     TopRight,
     Right,
     BottomRight,
@@ -39,4 +41,3 @@ impl Dir {
         (pos.0 as isize + vals.0, pos.1 as isize + vals.1)
     }
 }
-

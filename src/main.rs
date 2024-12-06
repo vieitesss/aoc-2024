@@ -1,11 +1,7 @@
 mod aoc;
 mod utils;
 
-use aoc::day2::Day2;
-use aoc::day3::Day3;
-use aoc::day4::Day4;
-use aoc::day5::Day5;
-use aoc::{day1::Day1, Solution};
+use aoc::{day1::Day1, day2::Day2, day3::Day3, day4::Day4, day5::Day5, day6::Day6, Solution};
 use std::{env, io, process::exit};
 
 fn usage_exit(day: &str) {
@@ -32,14 +28,10 @@ fn main() -> Result<(), io::Error> {
     let mut day3 = Day3::default();
     let mut day4 = Day4::default();
     let mut day5 = Day5::default();
+    let mut day6 = Day6::default();
 
-    let mut days: Vec<&mut dyn Solution> = vec![
-        &mut day1,
-        &mut day2,
-        &mut day3,
-        &mut day4,
-        &mut day5,
-    ];
+    let mut days: Vec<&mut dyn Solution> =
+        vec![&mut day1, &mut day2, &mut day3, &mut day4, &mut day5, &mut day6];
 
     let d = &mut days[day - 1];
     aoc::run_day(*d);

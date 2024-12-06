@@ -1,8 +1,8 @@
 #[derive(Default, Debug, PartialEq, Eq)]
 pub enum Dir {
     TopLeft,
-    Top,
     #[default]
+    Top,
     TopRight,
     Right,
     BottomRight,

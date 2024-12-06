@@ -1,8 +1,8 @@
 use super::Solution;
 use crate::utils::{
+    dir::Dir,
     matrix::{Matrix, MatrixTrait},
     parser,
-    dir::Dir
 };
 use std::fs;
 
@@ -13,28 +13,7 @@ pub struct Day6 {
     dir: Dir,
 }
 
-const DIRS: [char; 4] = ['^', 'v', '<', '>'];
-
 impl Day6 {
-    fn set_start_and_dir(&mut self) {
-        for (i, _) in self.table.iter().enumerate() {
-            for (j, _) in self.table[i].iter().enumerate() {
-                let c = self.table[i][j];
-                if DIRS.contains(&c) {
-                    self.current = (i, j);
-                    match c {
-                        '^' => self.dir = Dir::Top,
-                        'v' => self.dir = Dir::Bottom,
-                        '<' => self.dir = Dir::Left,
-                        '>' => self.dir = Dir::Right,
-                        _ => (),
-                    }
-                    break;
-                }
-            }
-        }
-    }
-
     fn is_wall(&mut self, p: (isize, isize)) -> bool {
         self.table.get_pos(p) == Some(&'#')
     }
@@ -72,7 +51,8 @@ impl Day6 {
 impl Solution for Day6 {
     fn parse_input(&mut self) {
         self.table = parser::to_chars_matrix(&fs::read_to_string("./input/day6").unwrap());
-        self.set_start_and_dir();
+        self.dir = Dir::Top;
+        self.current = self.table.find_element(&'^')[0]
     }
 
     fn part1(&mut self) -> u64 {
@@ -102,7 +82,7 @@ mod test {
             let mut day = Day6::default();
 
             day.table = parser::to_chars_matrix(&fs::read_to_string("./example/day6").unwrap());
-            day.set_start_and_dir();
+            day.current = day.table.find_element(&'^')[0];
 
             day
         }

@@ -16,7 +16,7 @@ impl Day4 {
     fn find_next(&self, pos: (isize, isize), dir: &Dir, find: char) -> bool {
         let checking = dir.from(pos);
 
-        if let Some(c) = self.matrix.get_pos(checking) {
+        if let Some(c) = self.matrix.from_pos(checking) {
             if *c != find {
                 return false;
             }
@@ -33,7 +33,7 @@ impl Day4 {
     }
 
     fn is_xmas(&self, pos: (isize, isize), dir: &Dir) -> bool {
-        if self.matrix.get_pos(pos) != Some('X').as_ref() {
+        if self.matrix.from_pos(pos) != Some('X').as_ref() {
             return false;
         }
 
@@ -41,7 +41,7 @@ impl Day4 {
     }
 
     fn count_xmas(&self) -> usize {
-        let xs = self.matrix.find_element(&'X');
+        let xs = self.matrix.positions(&'X');
         xs.iter().fold(0, |acc, &pos| {
             let current = (pos.0 as isize, pos.1 as isize);
             acc + DIRS.iter().filter(|dir| self.is_xmas(current, dir)).count()
@@ -49,12 +49,12 @@ impl Day4 {
     }
 
     fn count_x_mas(&self) -> usize {
-        let ass = self.matrix.find_element(&'A');
+        let ass = self.matrix.positions(&'A');
         ass.iter()
             .filter(|&&pos| {
                 let current = (pos.0 as isize, pos.1 as isize);
-                let topleft = self.matrix.get_pos(Dir::TopLeft.from(current));
-                let bottomright = self.matrix.get_pos(Dir::BottomRight.from(current));
+                let topleft = self.matrix.from_pos(Dir::TopLeft.from(current));
+                let bottomright = self.matrix.from_pos(Dir::BottomRight.from(current));
 
                 if !matches!(
                     (topleft, bottomright),
@@ -63,8 +63,8 @@ impl Day4 {
                     return false;
                 }
 
-                let topright = self.matrix.get_pos(Dir::TopRight.from(current));
-                let bottomleft = self.matrix.get_pos(Dir::BottomLeft.from(current));
+                let topright = self.matrix.from_pos(Dir::TopRight.from(current));
+                let bottomleft = self.matrix.from_pos(Dir::BottomLeft.from(current));
 
                 matches!(
                     (topright, bottomleft),

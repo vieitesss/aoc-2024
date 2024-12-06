@@ -15,7 +15,7 @@ pub struct Day6 {
 
 impl Day6 {
     fn is_wall(&mut self, p: (isize, isize)) -> bool {
-        self.table.get_pos(p) == Some(&'#')
+        self.table.from_pos(p) == Some(&'#')
     }
 
     fn update_dir(&mut self) {
@@ -52,7 +52,7 @@ impl Solution for Day6 {
     fn parse_input(&mut self) {
         self.table = parser::to_chars_matrix(&fs::read_to_string("./input/day6").unwrap());
         self.dir = Dir::Top;
-        self.current = self.table.find_element(&'^')[0]
+        self.current = self.table.positions(&'^')[0]
     }
 
     fn part1(&mut self) -> u64 {
@@ -65,7 +65,7 @@ impl Solution for Day6 {
 
         table[self.current.0][self.current.1] = 'X';
 
-        table.find_element(&'X').len() as u64
+        table.positions(&'X').len() as u64
     }
 
     fn part2(&mut self) -> u64 {
@@ -82,7 +82,7 @@ mod test {
             let mut day = Day6::default();
 
             day.table = parser::to_chars_matrix(&fs::read_to_string("./example/day6").unwrap());
-            day.current = day.table.find_element(&'^')[0];
+            day.current = day.table.positions(&'^')[0];
 
             day
         }
@@ -108,6 +108,6 @@ mod test {
 
         day.table[day.current.0][day.current.1] = 'X';
 
-        assert_eq!(day.table.find_element(&'X').len(), 41)
+        assert_eq!(day.table.positions(&'X').len(), 41)
     }
 }

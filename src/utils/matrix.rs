@@ -3,8 +3,8 @@ pub type Matrix<T> = Vec<Row<T>>;
 
 pub trait MatrixTrait<T> {
     fn is_outbounds(&self, pos: (isize, isize)) -> bool;
-    fn get_pos(&self, pos: (isize, isize)) -> Option<&T>;
-    fn find_element(&self, element: &T) -> Vec<(usize, usize)>
+    fn from_pos(&self, pos: (isize, isize)) -> Option<&T>;
+    fn positions(&self, element: &T) -> Vec<(usize, usize)>
     where
         T: PartialEq;
 }
@@ -17,7 +17,7 @@ impl<T> MatrixTrait<T> for Matrix<T> {
             || self.get(0).map_or(true, |row| pos.1 as usize >= row.len())
     }
 
-    fn get_pos(&self, pos: (isize, isize)) -> Option<&T> {
+    fn from_pos(&self, pos: (isize, isize)) -> Option<&T> {
         if self.is_outbounds(pos) {
             return None;
         }
@@ -25,7 +25,7 @@ impl<T> MatrixTrait<T> for Matrix<T> {
         Some(&self[pos.0 as usize][pos.1 as usize])
     }
 
-    fn find_element(&self, element: &T) -> Vec<(usize, usize)>
+    fn positions(&self, element: &T) -> Vec<(usize, usize)>
     where
         T: PartialEq,
     {

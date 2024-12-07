@@ -66,21 +66,19 @@ impl Day6 {
 
         while !self.is_edge_current() {
             self.current = self.get_next();
-            if let Some(d) = self.dirs.get(&self.current) {
-                if d.contains(&self.dir) {
-                    self.table[p.0][p.1] = 'X';
-                    return true;
-                } else {
-                    let updated = &d[..];
-                    self.dirs.insert(self.current, updated.to_vec());
-                }
+
+            let directions = self.dirs.entry(self.current).or_insert_with(Vec::new);
+
+            if directions.contains(&self.dir) {
+                self.table[p.0][p.1] = 'X';
+                return true;
             } else {
-                self.dirs.insert(self.current, vec![self.dir]);
+                directions.push(self.dir);
             }
         }
 
-        if let Some(d) = self.dirs.get(&p) {
-            if d.contains(&self.dir) {
+        if let Some(directions) = self.dirs.get(&p) {
+            if directions.contains(&self.dir) {
                 self.table[p.0][p.1] = 'X';
                 return true;
             }

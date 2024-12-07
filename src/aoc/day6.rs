@@ -4,12 +4,16 @@ use crate::utils::{
     matrix::{Matrix, MatrixTrait},
     parser,
 };
-use std::fs;
+use std::{collections::HashMap, fs};
+
+type Point = (usize, usize);
 
 #[derive(Default)]
 pub struct Day6 {
     table: Matrix<char>,
-    current: (usize, usize),
+    dirs: HashMap<Point, Vec<Dir>>,
+    start: Point,
+    current: Point,
     dir: Dir,
 }
 
@@ -28,7 +32,7 @@ impl Day6 {
         }
     }
 
-    fn get_next(&mut self) -> (usize, usize) {
+    fn get_next(&mut self) -> Point {
         let current = (self.current.0 as isize, self.current.1 as isize);
         let mut next = self.dir.from(current);
 
@@ -46,30 +50,75 @@ impl Day6 {
             || self.current.1 == 0
             || self.current.1 as usize == self.table[0].len() - 1
     }
+
+    fn reset(&mut self) {
+        self.dir = Dir::Top;
+        self.current = self.start;
+        self.dirs = HashMap::new();
+    }
+
+    fn is_loop(&mut self, p: Point) -> bool {
+        if p == self.start {
+            return false;
+        }
+
+        self.table[p.0][p.1] = '#';
+
+        while !self.is_edge_current() {
+            self.current = self.get_next();
+            if let Some(d) = self.dirs.get(&self.current) {
+                if d.contains(&self.dir) {
+                    self.table[p.0][p.1] = 'X';
+                    return true;
+                } else {
+                    let updated = &d[..];
+                    self.dirs.insert(self.current, updated.to_vec());
+                }
+            } else {
+                self.dirs.insert(self.current, vec![self.dir]);
+            }
+        }
+
+        if let Some(d) = self.dirs.get(&p) {
+            if d.contains(&self.dir) {
+                self.table[p.0][p.1] = 'X';
+                return true;
+            }
+        }
+
+        self.table[p.0][p.1] = 'X';
+        false
+    }
 }
 
 impl Solution for Day6 {
     fn parse_input(&mut self) {
         self.table = parser::to_chars_matrix(&fs::read_to_string("./input/day6").unwrap());
         self.dir = Dir::Top;
-        self.current = self.table.positions(&'^')[0]
+        self.start = self.table.positions(&'^')[0];
+        self.current = self.start;
     }
 
     fn part1(&mut self) -> u64 {
-        let mut table = self.table.clone();
-
         while !self.is_edge_current() {
-            table[self.current.0][self.current.1] = 'X';
+            self.table[self.current.0][self.current.1] = 'X';
             self.current = self.get_next();
         }
 
-        table[self.current.0][self.current.1] = 'X';
+        self.table[self.current.0][self.current.1] = 'X';
 
-        table.positions(&'X').len() as u64
+        self.table.positions(&'X').len() as u64
     }
 
     fn part2(&mut self) -> u64 {
-        0
+        let visited = self.table.positions(&'X');
+        visited
+            .iter()
+            .filter(|&p| {
+                self.reset();
+                self.is_loop(*p)
+            })
+            .count() as u64
     }
 }
 
@@ -82,9 +131,19 @@ mod test {
             let mut day = Day6::default();
 
             day.table = parser::to_chars_matrix(&fs::read_to_string("./example/day6").unwrap());
-            day.current = day.table.positions(&'^')[0];
+            day.start = day.table.positions(&'^')[0];
+            day.current = day.start;
 
             day
+        }
+
+        fn part1(&mut self) {
+            while !self.is_edge_current() {
+                self.table[self.current.0][self.current.1] = 'X';
+                self.current = self.get_next();
+            }
+
+            self.table[self.current.0][self.current.1] = 'X';
         }
     }
 
@@ -100,14 +159,37 @@ mod test {
     #[test]
     fn day6_part1_example() {
         let mut day = Day6::new();
-
-        while !day.is_edge_current() {
-            day.table[day.current.0][day.current.1] = 'X';
-            day.current = day.get_next();
-        }
-
-        day.table[day.current.0][day.current.1] = 'X';
-
+        day.part1();
         assert_eq!(day.table.positions(&'X').len(), 41)
+    }
+
+    #[test]
+    fn day6_part2_example() {
+        let mut day = Day6::new();
+        day.part1();
+        let _visited = day.table.positions(&'X');
+        day.reset();
+        assert!(day.is_loop((6, 3)));
+        day.reset();
+        assert!(day.is_loop((7, 6)));
+        day.reset();
+        assert!(day.is_loop((7, 7)));
+        day.reset();
+        assert!(day.is_loop((8, 1)));
+        day.reset();
+        assert!(day.is_loop((8, 3)));
+        day.reset();
+        assert!(day.is_loop((9, 7)));
+        day.reset();
+        assert!(!day.is_loop((1, 7)));
+        let visited = day.table.positions(&'X');
+        let total = visited
+            .iter()
+            .filter(|&p| {
+                day.reset();
+                day.is_loop(*p)
+            })
+            .count();
+        assert_eq!(total, 6);
     }
 }

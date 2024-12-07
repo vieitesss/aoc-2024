@@ -1,4 +1,4 @@
-#[derive(Default, Debug, PartialEq, Eq)]
+#[derive(Default, Debug, PartialEq, Eq, Copy, Clone)]
 pub enum Dir {
     TopLeft,
     #[default]

@@ -1,5 +1,5 @@
 use super::Solution;
-use std::{fs, ops};
+use std::fs;
 
 #[derive(Default)]
 pub struct Day7 {
@@ -46,9 +46,9 @@ impl Day7 {
         } else if op == Op::Mul {
             res * ops[pos]
         } else {
-            format!("{}{}", res, ops[pos])
-                .parse()
-                .expect("A valid number")
+            // x5 faster than parsing to String and back to usize!!!!
+            let power = ((ops[pos] + 1) as f64).log10().ceil() as u32;
+            res * (10_usize.pow(power)) as usize + ops[pos]
         };
 
         if t == test {
@@ -60,17 +60,19 @@ impl Day7 {
         }
 
         if part == 1 {
-            return self.cals(test, Op::Mul, pos + 1, t, ops, part)
-                + self.cals(test, Op::Add, pos + 1, t, ops, part);
+            self.cals(test, Op::Mul, pos + 1, t, ops, part)
+                + self.cals(test, Op::Add, pos + 1, t, ops, part)
+        } else {
+            self.cals(test, Op::Mul, pos + 1, t, ops, part)
+                + self.cals(test, Op::Add, pos + 1, t, ops, part)
+                + self.cals(test, Op::Con, pos + 1, t, ops, part)
         }
-        self.cals(test, Op::Mul, pos + 1, t, ops, part)
-            + self.cals(test, Op::Add, pos + 1, t, ops, part)
-            + self.cals(test, Op::Con, pos + 1, t, ops, part)
     }
 
     fn calculate_calibrations(&self, test: usize, part: usize) -> usize {
         let operators = &self.operators[test];
         let t = self.tests[test];
+
         if part == 1 {
             self.cals(t, Op::Mul, 1, operators[0], &operators, part)
                 + self.cals(t, Op::Add, 1, operators[0], &operators, part)

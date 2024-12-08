@@ -36,9 +36,9 @@ impl Day7 {
         res: usize,
         ops: &[usize],
         part: usize,
-    ) -> usize {
+    ) -> bool {
         if pos == ops.len() {
-            return 0;
+            return false;
         }
 
         let t = if op == Op::Add {
@@ -52,34 +52,34 @@ impl Day7 {
         };
 
         if t == test {
-            return 1;
+            return true;
         }
 
         if t > test {
-            return 0;
+            return false;
         }
 
         if part == 1 {
             self.cals(test, Op::Mul, pos + 1, t, ops, part)
-                + self.cals(test, Op::Add, pos + 1, t, ops, part)
+                || self.cals(test, Op::Add, pos + 1, t, ops, part)
         } else {
             self.cals(test, Op::Mul, pos + 1, t, ops, part)
-                + self.cals(test, Op::Add, pos + 1, t, ops, part)
-                + self.cals(test, Op::Con, pos + 1, t, ops, part)
+                || self.cals(test, Op::Add, pos + 1, t, ops, part)
+                || self.cals(test, Op::Con, pos + 1, t, ops, part)
         }
     }
 
-    fn calculate_calibrations(&self, test: usize, part: usize) -> usize {
+    fn calculate_calibrations(&self, test: usize, part: usize) -> bool {
         let operators = &self.operators[test];
         let t = self.tests[test];
 
         if part == 1 {
             self.cals(t, Op::Mul, 1, operators[0], &operators, part)
-                + self.cals(t, Op::Add, 1, operators[0], &operators, part)
+                || self.cals(t, Op::Add, 1, operators[0], &operators, part)
         } else {
             self.cals(t, Op::Mul, 1, operators[0], &operators, part)
-                + self.cals(t, Op::Add, 1, operators[0], &operators, part)
-                + self.cals(t, Op::Con, 1, operators[0], &operators, part)
+                || self.cals(t, Op::Add, 1, operators[0], &operators, part)
+                || self.cals(t, Op::Con, 1, operators[0], &operators, part)
         }
     }
 }
@@ -93,7 +93,7 @@ impl Solution for Day7 {
         self.tests
             .iter()
             .enumerate()
-            .filter(|(i, _)| self.calculate_calibrations(*i, 1) > 0)
+            .filter(|(i, _)| self.calculate_calibrations(*i, 1))
             .map(|(_, t)| t)
             .sum::<usize>() as u64
     }
@@ -102,7 +102,7 @@ impl Solution for Day7 {
         self.tests
             .iter()
             .enumerate()
-            .filter(|(i, _)| self.calculate_calibrations(*i, 2) > 0)
+            .filter(|(i, _)| self.calculate_calibrations(*i, 2))
             .map(|(_, t)| t)
             .sum::<usize>() as u64
     }
@@ -128,7 +128,7 @@ mod test {
             .tests
             .iter()
             .enumerate()
-            .filter(|(i, _)| day.calculate_calibrations(*i, 1) > 0)
+            .filter(|(i, _)| day.calculate_calibrations(*i, 1))
             .map(|(_, t)| t)
             .sum();
         assert_eq!(total, 3749);
@@ -141,7 +141,7 @@ mod test {
             .tests
             .iter()
             .enumerate()
-            .filter(|(i, _)| day.calculate_calibrations(*i, 2) > 0)
+            .filter(|(i, _)| day.calculate_calibrations(*i, 2))
             .map(|(_, t)| t)
             .sum();
         assert_eq!(total, 11387);

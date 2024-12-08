@@ -28,7 +28,15 @@ impl Day7 {
         }
     }
 
-    fn cals(&self, test: usize, op: Op, pos: usize, res: usize, ops: &[usize]) -> usize {
+    fn cals(
+        &self,
+        test: usize,
+        op: Op,
+        pos: usize,
+        res: usize,
+        ops: &[usize],
+        part: usize,
+    ) -> usize {
         if pos == ops.len() {
             return 0;
         }
@@ -51,51 +59,26 @@ impl Day7 {
             return 0;
         }
 
-        return self.cals(test, Op::Mul, pos + 1, t, ops)
-            + self.cals(test, Op::Add, pos + 1, t, ops);
+        if part == 1 {
+            return self.cals(test, Op::Mul, pos + 1, t, ops, part)
+                + self.cals(test, Op::Add, pos + 1, t, ops, part);
+        }
+        self.cals(test, Op::Mul, pos + 1, t, ops, part)
+            + self.cals(test, Op::Add, pos + 1, t, ops, part)
+            + self.cals(test, Op::Con, pos + 1, t, ops, part)
     }
 
-    fn cals_part2(&self, test: usize, op: Op, pos: usize, res: usize, ops: &[usize]) -> usize {
-        if pos == ops.len() {
-            return 0;
-        }
-
-        let t = if op == Op::Add {
-            res + ops[pos]
-        } else if op == Op::Mul {
-            res * ops[pos]
+    fn calculate_calibrations(&self, test: usize, part: usize) -> usize {
+        let operators = &self.operators[test];
+        let t = self.tests[test];
+        if part == 1 {
+            self.cals(t, Op::Mul, 1, operators[0], &operators, part)
+                + self.cals(t, Op::Add, 1, operators[0], &operators, part)
         } else {
-            format!("{}{}", res, ops[pos])
-                .parse()
-                .expect("A valid number")
-        };
-
-        if t == test {
-            return 1;
+            self.cals(t, Op::Mul, 1, operators[0], &operators, part)
+                + self.cals(t, Op::Add, 1, operators[0], &operators, part)
+                + self.cals(t, Op::Con, 1, operators[0], &operators, part)
         }
-
-        if t > test {
-            return 0;
-        }
-
-        return self.cals_part2(test, Op::Mul, pos + 1, t, ops)
-            + self.cals_part2(test, Op::Add, pos + 1, t, ops)
-            + self.cals_part2(test, Op::Con, pos + 1, t, ops);
-    }
-
-    fn calculate_calibrations(&self, test: usize) -> usize {
-        let operators = &self.operators[test];
-        let t = self.tests[test];
-        self.cals(t, Op::Mul, 1, operators[0], &operators)
-            + self.cals(t, Op::Add, 1, operators[0], &operators)
-    }
-
-    fn calculate_calibrations_part2(&self, test: usize) -> usize {
-        let operators = &self.operators[test];
-        let t = self.tests[test];
-        self.cals_part2(t, Op::Mul, 1, operators[0], &operators)
-            + self.cals_part2(t, Op::Add, 1, operators[0], &operators)
-            + self.cals_part2(t, Op::Con, 1, operators[0], &operators)
     }
 }
 
@@ -108,7 +91,7 @@ impl Solution for Day7 {
         self.tests
             .iter()
             .enumerate()
-            .filter(|(i, _)| self.calculate_calibrations(*i) > 0)
+            .filter(|(i, _)| self.calculate_calibrations(*i, 1) > 0)
             .map(|(_, t)| t)
             .sum::<usize>() as u64
     }
@@ -117,7 +100,7 @@ impl Solution for Day7 {
         self.tests
             .iter()
             .enumerate()
-            .filter(|(i, _)| self.calculate_calibrations_part2(*i) > 0)
+            .filter(|(i, _)| self.calculate_calibrations(*i, 2) > 0)
             .map(|(_, t)| t)
             .sum::<usize>() as u64
     }
@@ -143,7 +126,7 @@ mod test {
             .tests
             .iter()
             .enumerate()
-            .filter(|(i, _)| day.calculate_calibrations(*i) > 0)
+            .filter(|(i, _)| day.calculate_calibrations(*i, 1) > 0)
             .map(|(_, t)| t)
             .sum();
         assert_eq!(total, 3749);
@@ -156,7 +139,7 @@ mod test {
             .tests
             .iter()
             .enumerate()
-            .filter(|(i, _)| day.calculate_calibrations_part2(*i) > 0)
+            .filter(|(i, _)| day.calculate_calibrations(*i, 2) > 0)
             .map(|(_, t)| t)
             .sum();
         assert_eq!(total, 11387);

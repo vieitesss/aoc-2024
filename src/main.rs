@@ -3,7 +3,7 @@ mod utils;
 
 use aoc::{
     day1::Day1, day2::Day2, day3::Day3, day4::Day4, day5::Day5, day6::Day6, day7::Day7, day8::Day8,
-    Solution,
+    day9::Day9, Solution,
 };
 use std::{env, io, process::exit};
 
@@ -34,9 +34,11 @@ fn main() -> Result<(), io::Error> {
     let mut day6 = Day6::default();
     let mut day7 = Day7::default();
     let mut day8 = Day8::default();
+    let mut day9 = Day9::default();
 
     let mut days: Vec<&mut dyn Solution> = vec![
         &mut day1, &mut day2, &mut day3, &mut day4, &mut day5, &mut day6, &mut day7, &mut day8,
+        &mut day9,
     ];
 
     let d = &mut days[day - 1];
